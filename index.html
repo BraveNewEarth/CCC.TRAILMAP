@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#2d4a3e">
+    <title>Calcagnini Trails</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        :root {
+            /* Nature-focused muted palette */
+            --forest-deep: #2d4a3e;
+            --forest-mid: #4a7c6f;
+            --forest-light: #7da99a;
+            --forest-pale: #c8ddd5;
+            --earth-warm: #8b7355;
+            --earth-light: #d4c4b0;
+            --stone: #9a9a8e;
+            
+            /* Neutral grays */
+            --gray-50: #fafaf9;
+            --gray-100: #f5f5f4;
+            --gray-200: #e7e5e4;
+            --gray-300: #d6d3d1;
+            --gray-400: #a8a29e;
+            --gray-500: #78716c;
+            --gray-600: #57534e;
+            --gray-700: #44403c;
+            --gray-800: #292524;
+            --gray-900: #1c1917;
+            
+            /* Semantic */
+            --bg-primary: var(--gray-50);
+            --text-primary: var(--gray-800);
+            --text-secondary: var(--gray-600);
+            --accent: var(--forest-mid);
+            --accent-dark: var(--forest-deep);
+            
+            /* Trail colors */
+            --trail-magis: #c97b4a;
+            --trail-secondary: var(--forest-mid);
+            --you-are-here: #d94f4f;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            height: 100dvh;
+        }
+        
+        /* Map container */
+        #map {
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            z-index: 1;
+        }
+        
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 12px 16px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--forest-deep);
+            letter-spacing: -0.02em;
+        }
+        
+        .header-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        
+        .help-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--gray-300);
+            background: white;
+            color: var(--text-secondary);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .help-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        /* Bottom controls */
+        .controls {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+        }
+        
+        .control-btn {
+            padding: 12px 20px;
+            border-radius: 24px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+        
+        .control-btn.primary {
+            background: var(--forest-deep);
+            color: white;
+        }
+        
+        .control-btn.primary:hover {
+            background: var(--forest-mid);
+        }
+        
+        .control-btn.primary:active {
+            transform: scale(0.98);
+        }
+        
+        .control-btn.secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--gray-300);
+        }
+        
+        .control-btn.secondary:hover {
+            border-color: var(--accent);
+        }
+        
+        .control-btn.tracking {
+            background: var(--you-are-here);
+            color: white;
+        }
+        
+        /* GPS status indicator */
+        .gps-status {
+            position: fixed;
+            top: 72px;
+            right: 16px;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .gps-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gray-400);
+        }
+        
+        .gps-dot.active {
+            background: #22c55e;
+            animation: pulse 2s infinite;
+        }
+        
+        .gps-dot.error {
+            background: var(--you-are-here);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Trail legend */
+        .legend {
+            position: fixed;
+            bottom: 80px;
+            left: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 12px 16px;
+            border-radius: 12px;
+            z-index: 1000;
+            font-size: 13px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .legend-line {
+            width: 24px;
+            height: 4px;
+            border-radius: 2px;
+        }
+        
+        .legend-line.magis {
+            background: var(--trail-magis);
+        }
+        
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--you-are-here);
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--you-are-here);
+        }
+        
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--forest-deep);
+        }
+        
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: var(--gray-100);
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-close:hover {
+            background: var(--gray-200);
+        }
+        
+        .modal-content {
+            padding: 24px;
+        }
+        
+        .modal-content h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            margin-top: 20px;
+        }
+        
+        .modal-content h3:first-child {
+            margin-top: 0;
+        }
+        
+        .modal-content p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        
+        .modal-content ol {
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            padding-left: 20px;
+        }
+        
+        .modal-content ol li {
+            margin-bottom: 8px;
+        }
+        
+        .install-section {
+            background: var(--gray-50);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
+        .install-section h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .install-section p {
+            margin-bottom: 8px;
+        }
+        
+        .install-section p:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Offline indicator */
+        .offline-banner {
+            position: fixed;
+            top: 60px;
+            left: 16px;
+            right: 16px;
+            background: var(--earth-warm);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            z-index: 1000;
+            display: none;
+            text-align: center;
+        }
+        
+        .offline-banner.visible {
+            display: block;
+        }
+        
+        /* Custom Leaflet styles */
+        .leaflet-control-zoom {
+            border: none !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+        }
+        
+        .leaflet-control-zoom a {
+            background: white !important;
+            color: var(--text-primary) !important;
+            border: none !important;
+            width: 36px !important;
+            height: 36px !important;
+            line-height: 36px !important;
+            font-size: 18px !important;
+        }
+        
+        .leaflet-control-zoom a:hover {
+            background: var(--gray-100) !important;
+        }
+        
+        .leaflet-control-zoom-in {
+            border-radius: 8px 8px 0 0 !important;
+        }
+        
+        .leaflet-control-zoom-out {
+            border-radius: 0 0 8px 8px !important;
+        }
+        
+        /* User location marker */
+        .user-marker {
+            background: var(--you-are-here);
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(217, 79, 79, 0.4);
+        }
+        
+        .user-marker-pulse {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(217, 79, 79, 0.2);
+            animation: marker-pulse 2s ease-out infinite;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+        }
+        
+        @keyframes marker-pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+            }
+        }
+        
+        /* Center building marker */
+        .building-marker {
+            background: var(--forest-deep);
+            border: 2px solid white;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        /* Popup styling */
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .leaflet-popup-content {
+            margin: 12px 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .leaflet-popup-content h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--forest-deep);
+            margin-bottom: 4px;
+        }
+        
+        .leaflet-popup-tip {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div>
+            <h1>Calcagnini Trails</h1>
+            <span class="header-subtitle">Contemplative Center</span>
+        </div>
+        <button class="help-btn" onclick="showHelp()" aria-label="Help">?</button>
+    </header>
+    
+    <!-- GPS Status -->
+    <div class="gps-status" id="gpsStatus">
+        <span class="gps-dot" id="gpsDot"></span>
+        <span id="gpsText">GPS Off</span>
+    </div>
+    
+    <!-- Offline Banner -->
+    <div class="offline-banner" id="offlineBanner">
+        You're offline — Map still works!
+    </div>
+    
+    <!-- Map -->
+    <div id="map"></div>
+    
+    <!-- Trail Legend -->
+    <div class="legend">
+        <div class="legend-item">
+            <span class="legend-line magis"></span>
+            <span>Magis Loop</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-dot"></span>
+            <span>You are here</span>
+        </div>
+    </div>
+    
+    <!-- Controls -->
+    <div class="controls">
+        <button class="control-btn primary" id="locateBtn" onclick="toggleTracking()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+            </svg>
+            <span id="locateBtnText">Find Me</span>
+        </button>
+        <button class="control-btn secondary" onclick="centerOnTrail()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12h18M12 3v18"/>
+                <circle cx="12" cy="12" r="9"/>
+            </svg>
+            Trail
+        </button>
+    </div>
+    
+    <!-- Help Modal -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>How to Use This Map</h2>
+                <button class="modal-close" onclick="closeHelp()">×</button>
+            </div>
+            <div class="modal-content">
+                <h3>Finding Your Location</h3>
+                <p>Tap "Find Me" to show your current position on the map. The red dot shows where you are. Keep GPS enabled to track your movement along the trail.</p>
+                
+                <h3>If You Feel Lost</h3>
+                <p>Don't worry. The red dot always shows your real position. Follow the trail line back toward the Contemplative Center (marked on the map).</p>
+                
+                <h3>Offline Use</h3>
+                <p>This map works without internet once loaded. Make sure to open it while you have signal, then it will work anywhere on the property.</p>
+                
+                <div class="install-section">
+                    <h4>📱 Save to Your Phone</h4>
+                    <p><strong>iPhone:</strong> Tap the Share button (square with arrow), then "Add to Home Screen"</p>
+                    <p><strong>Android:</strong> Tap the menu (three dots), then "Add to Home Screen" or "Install App"</p>
+                </div>
+                
+                <h3>Trail Information</h3>
+                <p><strong>Magis Loop</strong> — A peaceful walking trail through the woods. The loop takes approximately 30-45 minutes at a contemplative pace. Elevation varies by about 70 meters.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Wait for Leaflet to load
+        function initMap() {
+            if (typeof L === 'undefined') {
+                setTimeout(initMap, 100);
+                return;
+            }
+            
+            // Trail data converted from GPX
+        const magisLoopCoords = [
+            [39.105523, -77.85928],
+            [39.105592, -77.859392],
+            [39.105629, -77.859498],
+            [39.105724, -77.859562],
+            [39.105815, -77.859547],
+            [39.105904, -77.859573],
+            [39.105994, -77.859577],
+            [39.106095, -77.859628],
+            [39.106201, -77.859618],
+            [39.106289, -77.859556],
+            [39.106395, -77.85951],
+            [39.106486, -77.859428],
+            [39.10657, -77.859372],
+            [39.106659, -77.859403],
+            [39.106777, -77.859415],
+            [39.106868, -77.859436],
+            [39.106966, -77.859531],
+            [39.107044, -77.859627],
+            [39.106975, -77.859702],
+            [39.106914, -77.859822],
+            [39.106855, -77.859942],
+            [39.106808, -77.860049],
+            [39.10677, -77.860173],
+            [39.106768, -77.860317],
+            [39.10677, -77.86046],
+            [39.106771, -77.860594],
+            [39.10679, -77.860717],
+            [39.106798, -77.860856],
+            [39.106771, -77.860977],
+            [39.106743, -77.861094],
+            [39.106774, -77.861239],
+            [39.106802, -77.861357],
+            [39.106875, -77.861454],
+            [39.106929, -77.861562],
+            [39.107027, -77.86162],
+            [39.107104, -77.861689],
+            [39.107202, -77.861746],
+            [39.107303, -77.861766],
+            [39.1073, -77.86191],
+            [39.10735, -77.862028],
+            [39.107259, -77.862059],
+            [39.107177, -77.862137],
+            [39.107077, -77.862136],
+            [39.107016, -77.862036],
+            [39.106934, -77.86197],
+            [39.106926, -77.861853],
+            [39.106864, -77.861741],
+            [39.106814, -77.861633],
+            [39.106749, -77.86154],
+            [39.106665, -77.86145],
+            [39.106574, -77.861409],
+            [39.106474, -77.861407],
+            [39.106366, -77.861342],
+            [39.106274, -77.861311],
+            [39.106178, -77.861365],
+            [39.106096, -77.861416],
+            [39.106011, -77.861465],
+            [39.10592, -77.861521],
+            [39.105824, -77.861572],
+            [39.105743, -77.861624],
+            [39.105647, -77.861684],
+            [39.105568, -77.861742],
+            [39.105471, -77.861812],
+            [39.105394, -77.861732],
+            [39.105384, -77.861608],
+            [39.105384, -77.861488],
+            [39.105363, -77.861368],
+            [39.10532, -77.861239],
+            [39.105292, -77.861126],
+            [39.10522, -77.861017],
+            [39.105133, -77.860948],
+            [39.105048, -77.86089],
+            [39.104969, -77.860831],
+            [39.104885, -77.860774]
+        ];
+        
+        // Center location (Contemplative Center at 400 Loyola Ln)
+        const centerLocation = [39.1052, -77.8595];
+        
+        // Initialize map
+        const map = L.map('map', {
+            zoomControl: false
+        }).setView([39.1060, -77.8605], 16);
+        
+        // Add zoom control to bottom right
+        L.control.zoom({
+            position: 'bottomright'
+        }).addTo(map);
+        
+        // Add local offline tiles (downloaded from OpenStreetMap)
+        // When tiles are bundled locally, use this path:
+        L.tileLayer('tiles/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            minZoom: 14,
+            attribution: '© OpenStreetMap',
+            errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+        }).addTo(map);
+        
+        // Restrict map to the tile coverage area
+        const bounds = L.latLngBounds(
+            L.latLng(39.097729, -77.868256),  // Southwest
+            L.latLng(39.119012, -77.841725)   // Northeast
+        );
+        map.setMaxBounds(bounds.pad(0.1));
+        map.options.minZoom = 14;
+        map.options.maxZoom = 18;
+        
+        // Draw Magis Loop trail
+        const magisTrail = L.polyline(magisLoopCoords, {
+            color: '#c97b4a',
+            weight: 5,
+            opacity: 0.9,
+            lineCap: 'round',
+            lineJoin: 'round'
+        }).addTo(map);
+        
+        // Add trailhead marker
+        const trailheadIcon = L.divIcon({
+            className: 'building-marker',
+            html: '🏛️',
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
+        });
+        
+        const centerMarker = L.marker(centerLocation, {
+            icon: trailheadIcon
+        }).addTo(map);
+        
+        centerMarker.bindPopup('<h4>Contemplative Center</h4><p>Trail begins here.<br>Return here if you need assistance.</p>');
+        
+        // User location tracking
+        let userMarker = null;
+        let watchId = null;
+        let isTracking = false;
+        
+        function updateGPSStatus(status, isActive, isError) {
+            const dot = document.getElementById('gpsDot');
+            const text = document.getElementById('gpsText');
+            
+            dot.className = 'gps-dot' + (isActive ? ' active' : '') + (isError ? ' error' : '');
+            text.textContent = status;
+        }
+        
+        function createUserMarker(latlng) {
+            const markerHtml = `
+                <div class="user-marker-pulse"></div>
+                <div class="user-marker" style="width: 16px; height: 16px; position: relative;"></div>
+            `;
+            
+            const icon = L.divIcon({
+                className: '',
+                html: markerHtml,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+            
+            return L.marker(latlng, { icon: icon });
+        }
+        
+        function toggleTracking() {
+            const btn = document.getElementById('locateBtn');
+            const btnText = document.getElementById('locateBtnText');
+            
+            if (isTracking) {
+                // Stop tracking
+                if (watchId !== null) {
+                    navigator.geolocation.clearWatch(watchId);
+                    watchId = null;
+                }
+                isTracking = false;
+                btn.classList.remove('tracking');
+                btn.classList.add('primary');
+                btnText.textContent = 'Find Me';
+                updateGPSStatus('GPS Off', false, false);
+            } else {
+                // Start tracking
+                if (!navigator.geolocation) {
+                    alert('GPS is not supported by your browser.');
+                    return;
+                }
+                
+                updateGPSStatus('Locating...', false, false);
+                
+                watchId = navigator.geolocation.watchPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const accuracy = Math.round(position.coords.accuracy);
+                        
+                        if (userMarker) {
+                            userMarker.setLatLng([lat, lng]);
+                        } else {
+                            userMarker = createUserMarker([lat, lng]).addTo(map);
+                        }
+                        
+                        if (!isTracking) {
+                            map.setView([lat, lng], 17);
+                        }
+                        
+                        isTracking = true;
+                        btn.classList.remove('primary');
+                        btn.classList.add('tracking');
+                        btnText.textContent = 'Tracking';
+                        updateGPSStatus(`±${accuracy}m`, true, false);
+                    },
+                    (error) => {
+                        let msg = 'GPS Error';
+                        if (error.code === 1) msg = 'GPS Denied';
+                        if (error.code === 2) msg = 'GPS Unavailable';
+                        if (error.code === 3) msg = 'GPS Timeout';
+                        
+                        updateGPSStatus(msg, false, true);
+                        isTracking = false;
+                        btn.classList.remove('tracking');
+                        btn.classList.add('primary');
+                        btnText.textContent = 'Find Me';
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 15000,
+                        maximumAge: 0
+                    }
+                );
+            }
+        }
+        
+        function centerOnTrail() {
+            map.fitBounds(magisTrail.getBounds(), {
+                padding: [60, 60]
+            });
+        }
+        
+        function showHelp() {
+            document.getElementById('helpModal').classList.add('active');
+        }
+        
+        function closeHelp() {
+            document.getElementById('helpModal').classList.remove('active');
+        }
+        
+        // Close modal on overlay click
+        document.getElementById('helpModal').addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                closeHelp();
+            }
+        });
+        
+        // Offline detection
+        function updateOnlineStatus() {
+            const banner = document.getElementById('offlineBanner');
+            if (!navigator.onLine) {
+                banner.classList.add('visible');
+            } else {
+                banner.classList.remove('visible');
+            }
+        }
+        
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+        
+        // Service worker registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed:', err));
+        }
+        
+        // Fit map to trail on load
+        setTimeout(() => {
+            centerOnTrail();
+        }, 500);
+        }
+        
+        // Start initialization
+        initMap();
+    </script>
+</body>
+</html>

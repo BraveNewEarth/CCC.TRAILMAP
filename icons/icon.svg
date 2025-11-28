@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" fill="#2d4a3e" rx="32"/>
+  <g fill="none" stroke="#c8ddd5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Tree/path symbol -->
+    <path d="M96 40 L96 152"/>
+    <path d="M66 70 L96 50 L126 70"/>
+    <path d="M56 100 L96 70 L136 100"/>
+    <path d="M46 130 L96 90 L146 130"/>
+    <!-- Small dots representing trail markers -->
+    <circle cx="96" cy="152" r="8" fill="#c97b4a" stroke="none"/>
+  </g>
+</svg>
