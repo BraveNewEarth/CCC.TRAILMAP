@@ -668,6 +668,12 @@
         const map = L.map('map', {
             zoomControl: false
         }).setView([39.1060, -77.8605], 16);
+
+        // Auto-start GPS when map loads
+        map.whenReady(() => {
+            console.log("Map ready, starting GPS...");
+            toggleTracking();
+        });
         
         // Add zoom control to bottom right
         L.control.zoom({
@@ -768,20 +774,37 @@
                 
                 updateGPSStatus('Locating...', false, false);
                 
+                const options = {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                };
+
                 watchId = navigator.geolocation.watchPosition(
                     (position) => {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
                         const accuracy = Math.round(position.coords.accuracy);
+                        const userLatLng = [lat, lng];
                         
+                        // Check if user is way off map (e.g. testing from home)
+                        const dist = map.distance(userLatLng, centerLocation);
+                        if (dist > 2000) { // > 2km away
+                            if (!window.hasShownOffMapAlert) {
+                                alert(`You are ${Math.round(dist/1000)}km away from the center. The map is locked to the retreat property, so you won't see your location dot here.`);
+                                window.hasShownOffMapAlert = true;
+                            }
+                        }
+
                         if (userMarker) {
-                            userMarker.setLatLng([lat, lng]);
+                            userMarker.setLatLng(userLatLng);
                         } else {
-                            userMarker = createUserMarker([lat, lng]).addTo(map);
+                            userMarker = createUserMarker(userLatLng).addTo(map);
                         }
                         
-                        if (!isTracking) {
-                            map.setView([lat, lng], 17);
+                        // Only center if we are actually on the map
+                        if (!isTracking && dist < 2000) {
+                            map.setView(userLatLng, 17);
                         }
                         
                         isTracking = true;
@@ -795,6 +818,9 @@
                         if (error.code === 1) msg = 'GPS Denied';
                         if (error.code === 2) msg = 'GPS Unavailable';
                         if (error.code === 3) msg = 'GPS Timeout';
+                        
+                        console.error("GPS Error:", error);
+                        alert(`GPS Error: ${msg}. Make sure location services are enabled for this site.`);
                         
                         updateGPSStatus(msg, false, true);
                         isTracking = false;
