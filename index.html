@@ -681,7 +681,8 @@
 
             // Initialize map
             const map = L.map('map', {
-                zoomControl: false
+                zoomControl: false,
+                attributionControl: false
             }).setView([39.1060, -77.8605], 16);
 
             // Auto-start GPS when map loads
@@ -695,13 +696,11 @@
                 position: 'bottomright'
             }).addTo(map);
 
-            // Add local offline tiles (downloaded from OpenStreetMap)
-            // When tiles are bundled locally, use this path:
-            L.tileLayer('tiles/{z}/{x}/{y}.png', {
-                maxZoom: 18,
+            // Use online OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
                 minZoom: 14,
-                attribution: '© OpenStreetMap',
-                errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+                attribution: '© OpenStreetMap contributors'
             }).addTo(map);
 
             // Restrict map to the tile coverage area
