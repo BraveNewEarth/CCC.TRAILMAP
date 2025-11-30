@@ -66,6 +66,12 @@ def get_tile_bounds(zoom, bounds):
     y_min = min(nw[1], se[1])
     y_max = max(nw[1], se[1])
     
+    # Add 1-tile buffer on each side to ensure Leaflet has all tiles it needs
+    x_min -= 1
+    x_max += 1
+    y_min -= 1
+    y_max += 1
+    
     return x_min, x_max, y_min, y_max
 
 # =============================================================================
