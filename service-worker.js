@@ -46,23 +46,28 @@ self.addEventListener('fetch', event => {
 
     // Special handling for map tiles - cache aggressively
     if (event.request.url.includes('tile.openstreetmap.org')) {
+        console.log('[SW] Intercepting tile request:', event.request.url);
         event.respondWith(
             caches.open(TILE_CACHE_NAME).then(cache => {
                 return cache.match(event.request).then(cachedResponse => {
                     // Return cached tile if available
                     if (cachedResponse) {
+                        console.log('[SW] Serving tile from cache:', event.request.url);
                         return cachedResponse;
                     }
 
                     // Fetch from network and cache
+                    console.log('[SW] Fetching tile from network:', event.request.url);
                     return fetch(event.request).then(networkResponse => {
                         // Cache successful responses
                         if (networkResponse && networkResponse.status === 200) {
+                            console.log('[SW] Caching tile:', event.request.url);
                             cache.put(event.request, networkResponse.clone());
                         }
                         return networkResponse;
                     }).catch(() => {
                         // Return blank tile if offline and not cached
+                        console.log('[SW] Tile fetch failed (offline):', event.request.url);
                         return new Response('', { status: 404 });
                     });
                 });
