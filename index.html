@@ -689,20 +689,19 @@
                 position: 'bottomright'
             }).addTo(map);
 
-            // Add local offline tiles (downloaded from OpenStreetMap)
-            L.tileLayer('tiles/{z}/{x}/{y}.png', {
+            // Use online tiles with service worker caching for offline functionality
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 18,
                 minZoom: 14,
-                attribution: '© OpenStreetMap',
-                errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+                attribution: '© OpenStreetMap contributors'
             }).addTo(map);
 
-            // Restrict map to the tile coverage area (no padding to prevent panning outside tiles)
+            // Restrict map to the trail area
             const bounds = L.latLngBounds(
                 L.latLng(39.097729, -77.868256),  // Southwest
                 L.latLng(39.119012, -77.841725)   // Northeast
             );
-            map.setMaxBounds(bounds);  // Strict bounds - no padding
+            map.setMaxBounds(bounds);
             map.options.minZoom = 14;
             map.options.maxZoom = 18;
 

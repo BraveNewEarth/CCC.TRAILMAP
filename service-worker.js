@@ -1,4 +1,5 @@
 const CACHE_NAME = 'calcagnini-trails-v1';
+const TILE_CACHE_NAME = 'calcagnini-tiles-v1';  // Separate cache for tiles (never deleted)
 
 // Core app files to cache immediately
 const CORE_FILES = [
@@ -21,13 +22,14 @@ self.addEventListener('install', event => {
     );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches (but keep tile cache)
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cacheName => {
-                    if (cacheName !== CACHE_NAME) {
+                    // Keep the current app cache and tile cache
+                    if (cacheName !== CACHE_NAME && cacheName !== TILE_CACHE_NAME) {
                         console.log('Removing old cache:', cacheName);
                         return caches.delete(cacheName);
                     }
@@ -37,11 +39,39 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Fetch event - serve from cache first, then network
+// Fetch event - aggressive tile caching for offline use
 self.addEventListener('fetch', event => {
     // Only handle GET requests
     if (event.request.method !== 'GET') return;
-    
+
+    // Special handling for map tiles - cache aggressively
+    if (event.request.url.includes('tile.openstreetmap.org')) {
+        event.respondWith(
+            caches.open(TILE_CACHE_NAME).then(cache => {
+                return cache.match(event.request).then(cachedResponse => {
+                    // Return cached tile if available
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
+
+                    // Fetch from network and cache
+                    return fetch(event.request).then(networkResponse => {
+                        // Cache successful responses
+                        if (networkResponse && networkResponse.status === 200) {
+                            cache.put(event.request, networkResponse.clone());
+                        }
+                        return networkResponse;
+                    }).catch(() => {
+                        // Return blank tile if offline and not cached
+                        return new Response('', { status: 404 });
+                    });
+                });
+            })
+        );
+        return;
+    }
+
+    // Standard caching for other resources
     event.respondWith(
         caches.match(event.request)
             .then(response => {
@@ -49,28 +79,24 @@ self.addEventListener('fetch', event => {
                 if (response) {
                     return response;
                 }
-                
+
                 // Otherwise fetch from network
                 return fetch(event.request).then(networkResponse => {
                     // Don't cache non-successful responses
                     if (!networkResponse || networkResponse.status !== 200) {
                         return networkResponse;
                     }
-                    
+
                     // Clone and cache the response
                     const responseToCache = networkResponse.clone();
                     caches.open(CACHE_NAME).then(cache => {
                         cache.put(event.request, responseToCache);
                     });
-                    
+
                     return networkResponse;
                 }).catch(() => {
-                    // If offline and not in cache, return error for tiles
-                    if (event.request.url.includes('/tiles/')) {
-                        return new Response('', { status: 404 });
-                    }
                     // For HTML pages, try to return cached index
-                    if (event.request.headers.get('accept').includes('text/html')) {
+                    if (event.request.headers.get('accept')?.includes('text/html')) {
                         return caches.match('/index.html');
                     }
                 });
