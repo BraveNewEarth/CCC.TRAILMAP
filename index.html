@@ -690,19 +690,19 @@
             }).addTo(map);
 
             // Add local offline tiles (downloaded from OpenStreetMap)
-            // When tiles are bundled locally, use this path:
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            L.tileLayer('tiles/{z}/{x}/{y}.png', {
                 maxZoom: 18,
                 minZoom: 14,
-                attribution: '© OpenStreetMap contributors'
+                attribution: '© OpenStreetMap',
+                errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
             }).addTo(map);
 
-            // Restrict map to the tile coverage area
+            // Restrict map to the tile coverage area (no padding to prevent panning outside tiles)
             const bounds = L.latLngBounds(
                 L.latLng(39.097729, -77.868256),  // Southwest
                 L.latLng(39.119012, -77.841725)   // Northeast
             );
-            map.setMaxBounds(bounds.pad(0.1));
+            map.setMaxBounds(bounds);  // Strict bounds - no padding
             map.options.minZoom = 14;
             map.options.maxZoom = 18;
 
