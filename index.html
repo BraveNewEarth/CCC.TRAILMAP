@@ -691,11 +691,10 @@
 
             // Add local offline tiles (downloaded from OpenStreetMap)
             // When tiles are bundled locally, use this path:
-            L.tileLayer('tiles/{z}/{x}/{y}.png', {
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 18,
                 minZoom: 14,
-                attribution: '© OpenStreetMap',
-                errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+                attribution: '© OpenStreetMap contributors'
             }).addTo(map);
 
             // Restrict map to the tile coverage area
