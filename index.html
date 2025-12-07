@@ -1592,7 +1592,7 @@ const rotation = ${currentRotation}°;`;
                                         // Re-using the detailed error logic
                                         if (error.code === 1) {
                                             msg = 'GPS Denied';
-                                            alert("Browser blocked location. Reset permissions in Settings to see the prompt again.");
+                                            alert("Location access denied by browser.\n\nSince you are on Chrome iOS:\n1. Open Chrome Menu (...)\n2. Settings -> Content Settings -> Location\n3. Set this site to 'Ask' or 'Allow'.");
                                         }
                                         if (error.code === 2) msg = 'GPS Unavailable';
                                         if (error.code === 3) msg = 'GPS Timeout';
@@ -1618,23 +1618,9 @@ const rotation = ${currentRotation}°;`;
                                 );
                             };
 
-                            // Check permissions API if available to give better feedback
-                            if (navigator.permissions && navigator.permissions.query) {
-                                navigator.permissions.query({ name: 'geolocation' }).then(function (result) {
-                                    if (result.state === 'denied') {
-                                        alert("Use of Location is BLOCKED for this site. The prompt cannot appear.\n\nPlease go to Browser Settings -> Site Settings -> Location and select 'Ask' or 'Allow'.");
-                                        updateGPSStatus('GPS Denied', false, true);
-                                        return; // Don't even try, it will fail
-                                    }
-                                    startWatching();
-                                }).catch(() => {
-                                    // If perms query fails, just try watching
-                                    startWatching();
-                                });
-                            } else {
-                                // Fallback for iOS/Safari where permissions API might vary
-                                startWatching();
-                            }
+                            // Directly start watching - let the browser decide if it should prompt or fail
+                            // The permissions API check can be unreliable on iOS WebKit
+                            startWatching();
                         }
                     }
 
