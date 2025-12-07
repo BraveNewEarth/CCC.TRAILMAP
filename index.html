@@ -1587,7 +1587,11 @@ const rotation = ${currentRotation}°;`;
                                 },
                                 (error) => {
                                     let msg = 'GPS Error';
-                                    if (error.code === 1) msg = 'GPS Denied';
+                                    if (error.code === 1) {
+                                        msg = 'GPS Denied';
+                                        // Explicitly tell user to check settings
+                                        alert("Location access was denied. Please properly enable Location Services for this specific website in your browser settings.");
+                                    }
                                     if (error.code === 2) msg = 'GPS Unavailable';
                                     if (error.code === 3) msg = 'GPS Timeout';
 
