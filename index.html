@@ -8,8 +8,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#2d4a3e">
     <title>Calcagnini Trails</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="manifest" href="/CCC.TRAILMAP/manifest.json">
+    <link rel="apple-touch-icon" href="/CCC.TRAILMAP/icons/icon-192.png">
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -74,52 +74,78 @@
         }
 
         /* Header */
-        .header {
+        /* Header Grid Layout */
+        .app-header {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
+            height: 72px;
+            /* Increased height for icon */
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            padding: 12px 16px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             z-index: 1000;
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            /* Left, Center, Right */
             align-items: center;
-            border-bottom: 1px solid var(--gray-200);
+            padding: 0 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-        .header h1 {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--forest-deep);
-            letter-spacing: -0.02em;
-        }
-
-        .header-subtitle {
-            font-size: 12px;
+        .header-left {
+            font-size: 11px;
             color: var(--text-secondary);
-            font-weight: 400;
+            line-height: 1.3;
+            max-width: 140px;
+        }
+
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-title {
+            font-family: 'Outfit', 'Inter', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--forest-deep);
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            justify-self: end;
         }
 
         .help-btn {
+            background: transparent;
+            border: 1px solid var(--gray-300);
             width: 36px;
+            /* Slightly larger targets */
             height: 36px;
             border-radius: 50%;
-            border: 1px solid var(--gray-300);
-            background: white;
-            color: var(--text-secondary);
-            font-size: 16px;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
         }
 
         .help-btn:hover {
-            border-color: var(--accent);
             color: var(--accent);
         }
 
@@ -462,16 +488,16 @@
             }
         }
 
-        /* Center building marker */
-        .building-marker {
-            background: var(--forest-deep);
-            border: 2px solid white;
-            border-radius: 4px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
+        /* Center building marker - REMOVED */
+
+        /* Trail start/end markers */
+        .trail-marker {
+            background: var(--trail-magis);
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(201, 123, 74, 0.6);
+            width: 24px;
+            height: 24px;
         }
 
         /* Popup styling */
@@ -496,17 +522,174 @@
         .leaflet-popup-tip {
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
         }
+
+        /* Debug panel for overlay adjustment */
+        .debug-panel {
+            position: fixed;
+            top: 72px;
+            left: 16px;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            font-size: 12px;
+            max-width: 320px;
+            display: none;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+        .debug-panel.active {
+            display: block;
+        }
+
+        .debug-panel h3 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            color: var(--forest-deep);
+            font-weight: 600;
+        }
+
+        .debug-panel h4 {
+            margin: 12px 0 6px 0;
+            font-size: 12px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .debug-panel p {
+            margin: 4px 0;
+            line-height: 1.4;
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+
+        .debug-panel code {
+            background: var(--gray-100);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 10px;
+            display: block;
+            margin: 4px 0;
+            word-break: break-all;
+        }
+
+        .debug-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 4px;
+            margin: 8px 0;
+        }
+
+        .debug-controls button {
+            padding: 8px 4px;
+            background: var(--forest-deep);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .debug-controls button:hover {
+            background: var(--forest-mid);
+        }
+
+        .debug-controls button:active {
+            transform: scale(0.95);
+        }
+
+        .debug-slider {
+            margin: 8px 0;
+        }
+
+        .debug-slider label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 11px;
+            color: var(--text-primary);
+        }
+
+        .debug-slider input[type="range"] {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--gray-200);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .debug-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--forest-deep);
+            cursor: pointer;
+        }
+
+        .debug-slider input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--forest-deep);
+            cursor: pointer;
+            border: none;
+        }
+
+        .debug-panel .primary-btn {
+            margin-top: 4px;
+            padding: 6px 12px;
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .debug-panel .secondary-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .aerial-overlay {
+            background: transparent !important;
+            mix-blend-mode: normal;
+        }
+
+        /* Force pane transparency */
+        .leaflet-pane.leaflet-aerialPane-pane {
+            background: transparent !important;
+            z-index: 350;
+        }
+
+        /* Ensure images in this pane have no background */
+        .leaflet-aerialPane-pane img {
+            background: transparent !important;
+        }
     </style>
 </head>
 
 <body>
     <!-- Header -->
-    <header class="header">
-        <div>
-            <h1>Calcagnini Trails</h1>
-            <span class="header-subtitle">Contemplative Center</span>
+    <header class="app-header">
+        <div class="header-left">
+            Calcagnini<br>Contemplative Center<br>(CCC) Trails
         </div>
-        <button class="help-btn" onclick="showHelp()" aria-label="Help">?</button>
+
+        <div class="header-center">
+            <img src="header-icon.jpg" alt="Logo" class="header-icon">
+            <div class="header-title">TAKE A HIKE</div>
+        </div>
+
+        <div class="header-right">
+            <!-- Help button removed per user request -->
+        </div>
     </header>
 
     <!-- GPS Status -->
@@ -544,13 +727,73 @@
             </svg>
             <span id="locateBtnText">Find Me</span>
         </button>
-        <button class="control-btn secondary" onclick="centerOnTrail()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 12h18M12 3v18" />
-                <circle cx="12" cy="12" r="9" />
-            </svg>
-            Trail
-        </button>
+
+
+    </div>
+
+    <!-- Debug Panel for Overlay Adjustment -->
+    <div class="debug-panel" id="debugPanel">
+        <h3>🎯 Overlay Adjustment</h3>
+        <p>Use these controls to position and resize the aerial image overlay.</p>
+
+        <h4>Move Overlay</h4>
+        <div class="debug-controls">
+            <button onclick="moveOverlay('nw')">↖️ NW</button>
+            <button onclick="moveOverlay('n')">⬆️ N</button>
+            <button onclick="moveOverlay('ne')">↗️ NE</button>
+            <button onclick="moveOverlay('w')">⬅️ W</button>
+            <button onclick="resetOverlay()">🎯</button>
+            <button onclick="moveOverlay('e')">➡️ E</button>
+            <button onclick="moveOverlay('sw')">↙️ SW</button>
+            <button onclick="moveOverlay('s')">⬇️ S</button>
+            <button onclick="moveOverlay('se')">↘️ SE</button>
+        </div>
+
+        <h4>Resize Overlay</h4>
+        <div class="debug-controls">
+            <button onclick="resizeOverlay('expand')">➕ Expand</button>
+            <button onclick="resizeOverlay('shrink')">➖ Shrink</button>
+            <button onclick="resizeOverlay('wider')">↔️ Wider</button>
+            <button onclick="resizeOverlay('narrower')">↔️ Narrow</button>
+            <button onclick="resizeOverlay('taller')">↕️ Taller</button>
+            <button onclick="resizeOverlay('shorter')">↕️ Short</button>
+        </div>
+
+        <div class="debug-slider">
+            <label>
+                <span>Opacity</span>
+                <span id="opacityValue">75%</span>
+            </label>
+            <input type="range" id="opacitySlider" min="0" max="100" value="75" oninput="updateOpacity(this.value)">
+        </div>
+
+        <h4>Rotation & Tilt</h4>
+        <div class="debug-slider">
+            <label>
+                <span>Rotation</span>
+                <span id="rotationValue">0°</span>
+            </label>
+            <input type="range" id="rotationSlider" min="0" max="360" value="0" oninput="updateRotation(this.value)">
+        </div>
+
+        <div class="debug-controls">
+            <button onclick="tiltOverlay('left')">⤺ Tilt Left</button>
+            <button onclick="tiltOverlay('reset')">↕️ Reset</button>
+            <button onclick="tiltOverlay('right')">⤻ Tilt Right</button>
+        </div>
+
+        <h4>Current Position</h4>
+        <div id="boundsDisplay">
+            <code>Loading...</code>
+        </div>
+
+        <h4>Corner Points</h4>
+        <div id="cornerDisplay" style="font-size: 10px; color: var(--text-secondary);">
+            <code>Loading...</code>
+        </div>
+
+        <button class="primary-btn" onclick="copyBounds()">📋 Copy Coordinates</button>
+        <button class="secondary-btn" onclick="toggleDebugMode()">✅ Done</button>
     </div>
 
     <!-- Help Modal -->
@@ -584,300 +827,857 @@
                 <p><strong>Magis Loop</strong> — A peaceful walking trail through the woods. The loop takes
                     approximately 30-45 minutes at a contemplative pace. Elevation varies by about 70 meters.</p>
             </div>
-        </div>
-    </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <link
+                href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&display=swap"
+                rel="stylesheet">
 
-    <script>
-        // Wait for Leaflet to load
-        function initMap() {
-            if (typeof L === 'undefined') {
-                setTimeout(initMap, 100);
-                return;
-            }
+            <!-- Leaflet JS -->
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-            // Trail data converted from GPX
-            const magisLoopCoords = [
-                [39.105523, -77.85928],
-                [39.105592, -77.859392],
-                [39.105629, -77.859498],
-                [39.105724, -77.859562],
-                [39.105815, -77.859547],
-                [39.105904, -77.859573],
-                [39.105994, -77.859577],
-                [39.106095, -77.859628],
-                [39.106201, -77.859618],
-                [39.106289, -77.859556],
-                [39.106395, -77.85951],
-                [39.106486, -77.859428],
-                [39.10657, -77.859372],
-                [39.106659, -77.859403],
-                [39.106777, -77.859415],
-                [39.106868, -77.859436],
-                [39.106966, -77.859531],
-                [39.107044, -77.859627],
-                [39.106975, -77.859702],
-                [39.106914, -77.859822],
-                [39.106855, -77.859942],
-                [39.106808, -77.860049],
-                [39.10677, -77.860173],
-                [39.106768, -77.860317],
-                [39.10677, -77.86046],
-                [39.106771, -77.860594],
-                [39.10679, -77.860717],
-                [39.106798, -77.860856],
-                [39.106771, -77.860977],
-                [39.106743, -77.861094],
-                [39.106774, -77.861239],
-                [39.106802, -77.861357],
-                [39.106875, -77.861454],
-                [39.106929, -77.861562],
-                [39.107027, -77.86162],
-                [39.107104, -77.861689],
-                [39.107202, -77.861746],
-                [39.107303, -77.861766],
-                [39.1073, -77.86191],
-                [39.10735, -77.862028],
-                [39.107259, -77.862059],
-                [39.107177, -77.862137],
-                [39.107077, -77.862136],
-                [39.107016, -77.862036],
-                [39.106934, -77.86197],
-                [39.106926, -77.861853],
-                [39.106864, -77.861741],
-                [39.106814, -77.861633],
-                [39.106749, -77.86154],
-                [39.106665, -77.86145],
-                [39.106574, -77.861409],
-                [39.106474, -77.861407],
-                [39.106366, -77.861342],
-                [39.106274, -77.861311],
-                [39.106178, -77.861365],
-                [39.106096, -77.861416],
-                [39.106011, -77.861465],
-                [39.10592, -77.861521],
-                [39.105824, -77.861572],
-                [39.105743, -77.861624],
-                [39.105647, -77.861684],
-                [39.105568, -77.861742],
-                [39.105471, -77.861812],
-                [39.105394, -77.861732],
-                [39.105384, -77.861608],
-                [39.105384, -77.861488],
-                [39.105363, -77.861368],
-                [39.10532, -77.861239],
-                [39.105292, -77.861126],
-                [39.10522, -77.861017],
-                [39.105133, -77.860948],
-                [39.105048, -77.86089],
-                [39.104969, -77.860831],
-                [39.104885, -77.860774]
-            ];
+            <!-- Leaflet.ImageOverlay.Rotated Plugin - must load after Leaflet -->
+            <script src="https://unpkg.com/leaflet-imageoverlay-rotated@0.2.1/Leaflet.ImageOverlay.Rotated.js"></script>
 
-            // Center location (Contemplative Center at 400 Loyola Ln)
-            const centerLocation = [39.1052, -77.8595];
+            <script>
+                // Wait for Leaflet to load
+                function initMap() {
+                    if (typeof L === 'undefined') {
+                        setTimeout(initMap, 100);
+                        return;
+                    }
 
-            // Initialize map
-            const map = L.map('map', {
-                zoomControl: false,
-                attributionControl: false
-            }).setView([39.1060, -77.8605], 16);
+                    // Trail data from MAGIS.LOOP.TRAIL.gpx
+                    const magisLoopCoords = [
+                        [39.105551, -77.859333],
+                        [39.105613, -77.859426],
+                        [39.105672, -77.859531],
+                        [39.10577, -77.859554],
+                        [39.105869, -77.859549],
+                        [39.105963, -77.859583],
+                        [39.106062, -77.859594],
+                        [39.106159, -77.859614],
+                        [39.106255, -77.859554],
+                        [39.106354, -77.859545],
+                        [39.106436, -77.859471],
+                        [39.106516, -77.859398],
+                        [39.106617, -77.859374],
+                        [39.106719, -77.859403],
+                        [39.106823, -77.859406],
+                        [39.106918, -77.859426],
+                        [39.106976, -77.859525],
+                        [39.107011, -77.859645],
+                        [39.10695, -77.859753],
+                        [39.106903, -77.85988],
+                        [39.106855, -77.859995],
+                        [39.106809, -77.860107],
+                        [39.106784, -77.860227],
+                        [39.106786, -77.860359],
+                        [39.106782, -77.86048],
+                        [39.106782, -77.860613],
+                        [39.106798, -77.860738],
+                        [39.106811, -77.860859],
+                        [39.106788, -77.860972],
+                        [39.106779, -77.861097],
+                        [39.106772, -77.861229],
+                        [39.106798, -77.861351],
+                        [39.106862, -77.86145],
+                        [39.106913, -77.861552],
+                        [39.107, -77.861608],
+                        [39.107083, -77.861665],
+                        [39.107166, -77.86172],
+                        [39.107257, -77.861757],
+                        [39.107341, -77.86182],
+                        [39.107322, -77.861938],
+                        [39.107264, -77.862097],
+                        [39.107188, -77.86218],
+                        [39.107069, -77.862173],
+                        [39.107001, -77.862077],
+                        [39.10692, -77.861997],
+                        [39.10692, -77.861879],
+                        [39.106864, -77.861776],
+                        [39.106799, -77.861693],
+                        [39.106732, -77.861605],
+                        [39.106677, -77.86151],
+                        [39.106611, -77.861426],
+                        [39.106514, -77.861422],
+                        [39.106418, -77.861406],
+                        [39.10634, -77.861344],
+                        [39.106249, -77.861346],
+                        [39.106133, -77.861432],
+                        [39.10603, -77.86149],
+                        [39.105953, -77.861562],
+                        [39.105849, -77.861585],
+                        [39.105767, -77.861665],
+                        [39.105682, -77.861724],
+                        [39.105588, -77.861774],
+                        [39.1055, -77.861832],
+                        [39.1054, -77.861814],
+                        [39.105368, -77.861703],
+                        [39.105356, -77.861586],
+                        [39.105358, -77.861453],
+                        [39.105341, -77.861332],
+                        [39.105304, -77.861207],
+                        [39.105244, -77.861089],
+                        [39.10517, -77.861012],
+                        [39.105081, -77.86097],
+                        [39.104989, -77.860928],
+                        [39.104905, -77.86085],
+                        [39.104864, -77.860815]
+                    ];
 
-            // Add zoom control to bottom right
-            L.control.zoom({
-                position: 'bottomright'
-            }).addTo(map);
+                    // Center location (Contemplative Center at 400 Loyola Ln)
+                    const centerLocation = [39.1052, -77.8595];
 
-            // Use online tiles with service worker caching for offline functionality
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 18,
-                minZoom: 14,
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+                    // Initialize map
+                    const map = L.map('map', {
+                        zoomControl: false,
+                        attributionControl: false
+                    }).setView([39.1060, -77.8605], 16);
 
-            // Restrict map to the trail area
-            const bounds = L.latLngBounds(
-                L.latLng(39.097729, -77.868256),  // Southwest
-                L.latLng(39.119012, -77.841725)   // Northeast
-            );
-            map.setMaxBounds(bounds);
-            map.options.minZoom = 14;
-            map.options.maxZoom = 18;
+                    // Add zoom control to bottom right
+                    L.control.zoom({
+                        position: 'bottomright'
+                    }).addTo(map);
 
-            // Draw Magis Loop trail
-            const magisTrail = L.polyline(magisLoopCoords, {
-                color: '#c97b4a',
-                weight: 5,
-                opacity: 0.9,
-                lineCap: 'round',
-                lineJoin: 'round'
-            }).addTo(map);
+                    // Use online tiles with service worker caching for offline functionality
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 22, // Allow zooming in deeper
+                        maxNativeZoom: 19, // Tiles only exist up to 19, auto-scale after that
+                        minZoom: 14,
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(map);
 
-            // Add trailhead marker
-            const trailheadIcon = L.divIcon({
-                className: 'building-marker',
-                html: '🏛️',
-                iconSize: [28, 28],
-                iconAnchor: [14, 14]
-            });
+                    // Restrict map to the trail area
+                    const bounds = L.latLngBounds(
+                        L.latLng(39.097729, -77.868256),  // Southwest
+                        L.latLng(39.119012, -77.841725)   // Northeast
+                    );
+                    map.setMaxBounds(bounds);
+                    map.options.minZoom = 14;
+                    map.options.maxZoom = 22; // Matched higher zoom limit
 
-            const centerMarker = L.marker(centerLocation, {
-                icon: trailheadIcon
-            }).addTo(map);
+                    // Draw Magis Loop trail
+                    const magisTrail = L.polyline(magisLoopCoords, {
+                        color: '#c97b4a',
+                        weight: 5,
+                        opacity: 0.9,
+                        lineCap: 'round',
+                        lineJoin: 'round'
+                    }).addTo(map);
 
-            centerMarker.bindPopup('<h4>Contemplative Center</h4><p>Trail begins here.<br>Return here if you need assistance.</p>');
+                    // Add custom aerial image overlay with rotation support
+                    // Using Leaflet.ImageOverlay.Rotated for precise 3-point positioning
+                    // Position between trail start [39.105551, -77.859333] and end [39.104864, -77.860815]
 
-            // User location tracking
-            let userMarker = null;
-            let watchId = null;
-            let isTracking = false;
+                    // Create custom pane for aerial image to ensure it stays BELOW the trail
+                    map.createPane('aerialPane');
+                    map.getPane('aerialPane').style.zIndex = 350; // Below overlayPane (400) where trail lives
 
-            function updateGPSStatus(status, isActive, isError) {
-                const dot = document.getElementById('gpsDot');
-                const text = document.getElementById('gpsText');
+                    // Define 3 corner points for rotated overlay (top-left, top-right, bottom-left)
+                    const overlayTopLeft = L.latLng(39.106900, -77.862800);     // Top-left corner
+                    const overlayTopRight = L.latLng(39.107500, -77.857400);    // Top-right corner  
+                    const overlayBottomLeft = L.latLng(39.102900, -77.862800);  // Bottom-left corner
 
-                dot.className = 'gps-dot' + (isActive ? ' active' : '') + (isError ? ' error' : '');
-                text.textContent = status;
-            }
+                    const centerOverlay = L.imageOverlay.rotated(
+                        'obverlay.png',
+                        overlayTopLeft,
+                        overlayTopRight,
+                        overlayBottomLeft,
+                        {
+                            opacity: 1,
+                            interactive: false,
+                            className: 'aerial-overlay',
+                            pane: 'aerialPane'
+                        }
+                    ).addTo(map);
 
-            function createUserMarker(latlng) {
-                const markerHtml = `
+                    // Cornerstone Trail Data (Blue)
+                    const cornerstoneCoords = [
+                        [39.105748, -77.859805],
+                        [39.105803, -77.859686],
+                        [39.105713, -77.859577],
+                        [39.105713, -77.859531]
+                    ];
+
+                    const cornerstoneTrail = L.polyline(cornerstoneCoords, {
+                        color: '#0060FD',
+                        weight: 5,
+                        opacity: 0.9,
+                        dashArray: '5, 10', // Dashed line to distinguish
+                        lineCap: 'round',
+                        className: 'trail-path'
+                    }).addTo(map);
+
+                    // Add popup to Cornerstone Trail
+                    cornerstoneTrail.bindPopup(`
+                <div style="font-family: 'Inter', sans-serif; padding: 5px;">
+                    <h3 style="margin: 0 0 5px 0; color: #0060FD;">Cornerstone Trail</h3>
+                    <p style="margin: 0; font-size: 14px; color: #666;">Connector path</p>
+                </div>
+            `);
+
+                    // Update Legend with correct CSS classes
+                    const legend = document.querySelector('.legend');
+                    legend.innerHTML = `
+                <div class="legend-item">
+                    <span class="legend-dot" style="background-color: #e76f51;"></span>
+                    <span>You are here</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-line" style="background-color: #d97706;"></span>
+                    <span>Magis Loop</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-line" style="background-color: #0060FD; border-bottom: 2px dashed #fff;"></span>
+                    <span>Cornerstone</span>
+                </div>
+            `;
+
+                    // Building marker and popup removed - overlay image shows the center
+
+                    // Add orange circle markers at trail start and end points
+                    const startMarker = L.circleMarker([39.105551, -77.859333], {
+                        color: '#d97706',
+                        fillColor: '#fff',
+                        fillOpacity: 1,
+                        radius: 6
+                    }).addTo(map);
+
+                    const endMarker = L.circleMarker([39.104864, -77.860815], {
+                        color: '#d97706',
+                        fillColor: '#fff',
+                        fillOpacity: 1,
+                        radius: 6
+                    }).addTo(map);
+
+                    function createCustomMarker(latlng, icon) {
+                        return L.marker(latlng, { icon: icon });
+                    }
+
+                    function createUserMarker(latlng) {
+                        // ... (rest of function)
+                        // Simplified for brevity in this replace block if needed, but keeping context
+                        return L.circleMarker(latlng, {
+                            radius: 8,
+                            fillColor: '#e76f51',
+                            color: '#fff',
+                            weight: 3,
+                            opacity: 1,
+                            fillOpacity: 1
+                        });
+                    }
+
+                    // ... (toggleDebugMode, toggleTracking functions unchanged)
+
+                    function centerOnTrail() {
+                        // Tighter padding for "closer" zoom
+                        map.fitBounds(magisTrail.getBounds(), {
+                            padding: [20, 20]
+                        });
+                    }
+
+                    // ... (rest of functions)
+
+                    // Inside initMap's setTimeout:
+                    // Ensure trails are on top
+                    /*
+                        if (magisTrail) {
+                            magisTrail.bringToFront();
+                        }
+                        if (cornerstoneTrail) {
+                            cornerstoneTrail.bringToFront();
+                        }
+                    */
+
+                    // Building marker and popup removed - overlay image shows the center
+
+                    // Add orange circle markers at trail start and end points
+                    const trailMarkerIcon = L.divIcon({
+                        className: 'trail-marker',
+                        html: '',
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    });
+
+                    // Trail start marker - exact coordinates from GPX
+                    const trailStart = L.marker([39.105551, -77.859333], {
+                        icon: trailMarkerIcon
+                    }).addTo(map);
+                    trailStart.bindPopup('<h4>Trail Start</h4><p>Begin your journey on the Magis Loop here.</p>');
+
+                    // Trail end marker - exact coordinates from GPX
+                    const trailEnd = L.marker([39.104864, -77.860815], {
+                        icon: trailMarkerIcon
+                    }).addTo(map);
+                    trailEnd.bindPopup('<h4>Trail End</h4><p>Complete the Magis Loop here.</p>');
+
+                    // Debug mode for overlay adjustment
+                    let debugMode = false;
+                    let currentCorners = {
+                        topLeft: overlayTopLeft,
+                        topRight: overlayTopRight,
+                        bottomLeft: overlayBottomLeft
+                    };
+                    let currentRotation = 0;
+
+                    function updateOverlayCorners(topLeft, topRight, bottomLeft) {
+                        currentCorners = { topLeft, topRight, bottomLeft };
+                        centerOverlay.reposition(topLeft, topRight, bottomLeft);
+                        updateDebugPanel();
+                    }
+
+                    function updateDebugPanel() {
+                        const panel = document.getElementById('debugPanel');
+                        if (panel && debugMode) {
+                            const { topLeft, topRight, bottomLeft } = currentCorners;
+
+                            // Calculate center point
+                            const centerLat = (topLeft.lat + bottomLeft.lat) / 2;
+                            const centerLng = (topLeft.lng + topRight.lng) / 2;
+
+                            document.getElementById('boundsDisplay').innerHTML = `
+                        <code>Center: [${centerLat.toFixed(6)}, ${centerLng.toFixed(6)}]</code>
+                        <code>Rotation: ${currentRotation}°</code>
+                    `;
+
+                            document.getElementById('cornerDisplay').innerHTML = `
+                        <code>TL: [${topLeft.lat.toFixed(6)}, ${topLeft.lng.toFixed(6)}]</code>
+                        <code>TR: [${topRight.lat.toFixed(6)}, ${topRight.lng.toFixed(6)}]</code>
+                        <code>BL: [${bottomLeft.lat.toFixed(6)}, ${bottomLeft.lng.toFixed(6)}]</code>
+                    `;
+                        }
+                    }
+
+                    function toggleDebugMode() {
+                        debugMode = !debugMode;
+                        const panel = document.getElementById('debugPanel');
+                        if (debugMode) {
+                            panel.classList.add('active');
+                            updateDebugPanel();
+                        } else {
+                            panel.classList.remove('active');
+                        }
+                    }
+
+                    // Keyboard controls for fine adjustment
+                    document.addEventListener('keydown', (e) => {
+                        if (!debugMode) return;
+
+                        const step = e.shiftKey ? 0.0001 : 0.00005; // Smaller or larger steps
+                        let sw = [...currentBounds[0]];
+                        let ne = [...currentBounds[1]];
+
+                        switch (e.key) {
+                            case 'ArrowUp':
+                                sw[0] += step;
+                                ne[0] += step;
+                                break;
+                            case 'ArrowDown':
+                                sw[0] -= step;
+                                ne[0] -= step;
+                                break;
+                            case 'ArrowLeft':
+                                sw[1] -= step;
+                                ne[1] -= step;
+                                break;
+                            case 'ArrowRight':
+                                sw[1] += step;
+                                ne[1] += step;
+                                break;
+                            case 'w': // Expand north
+                                ne[0] += step;
+                                break;
+                            case 's': // Shrink north
+                                ne[0] -= step;
+                                break;
+                            case 'a': // Shrink east
+                                ne[1] -= step;
+                                break;
+                            case 'd': // Expand east
+                                ne[1] += step;
+                                break;
+                            case 'q': // Expand south
+                                sw[0] -= step;
+                                break;
+                            case 'e': // Shrink south
+                                sw[0] += step;
+                                break;
+                            case 'z': // Shrink west
+                                sw[1] += step;
+                                break;
+                            case 'c': // Expand west
+                                sw[1] -= step;
+                                break;
+                            default:
+                                return;
+                        }
+
+                        e.preventDefault();
+                        updateOverlayBounds([sw, ne]);
+                    });
+
+                    // Make overlay draggable in debug mode
+                    let isDragging = false;
+                    let dragStart = null;
+
+                    map.on('mousedown', (e) => {
+                        if (debugMode && e.originalEvent.altKey) {
+                            isDragging = true;
+                            dragStart = e.latlng;
+                            map.dragging.disable();
+                        }
+                    });
+
+                    map.on('mousemove', (e) => {
+                        if (isDragging && dragStart) {
+                            const latDiff = e.latlng.lat - dragStart.lat;
+                            const lngDiff = e.latlng.lng - dragStart.lng;
+
+                            const sw = [currentBounds[0][0] + latDiff, currentBounds[0][1] + lngDiff];
+                            const ne = [currentBounds[1][0] + latDiff, currentBounds[1][1] + lngDiff];
+
+                            updateOverlayBounds([sw, ne]);
+                            dragStart = e.latlng;
+                        }
+                    });
+
+                    map.on('mouseup', () => {
+                        if (isDragging) {
+                            isDragging = false;
+                            dragStart = null;
+                            map.dragging.enable();
+                        }
+                    });
+
+                    // Expose functions globally
+                    window.toggleDebugMode = toggleDebugMode;
+                    window.moveOverlay = moveOverlay;
+                    window.resizeOverlay = resizeOverlay;
+                    window.updateOpacity = updateOpacity;
+                    window.updateRotation = updateRotation;
+                    window.tiltOverlay = tiltOverlay;
+                    window.copyBounds = copyBounds;
+                    window.resetOverlay = resetOverlay;
+
+                    // Interactive control functions
+                    function moveOverlay(direction) {
+                        const step = 0.0002; // Adjust movement step size
+                        let { topLeft, topRight, bottomLeft } = currentCorners;
+
+                        // Clone the LatLng objects
+                        topLeft = L.latLng(topLeft.lat, topLeft.lng);
+                        topRight = L.latLng(topRight.lat, topRight.lng);
+                        bottomLeft = L.latLng(bottomLeft.lat, bottomLeft.lng);
+
+                        switch (direction) {
+                            case 'n':
+                                topLeft.lat += step;
+                                topRight.lat += step;
+                                bottomLeft.lat += step;
+                                break;
+                            case 's':
+                                topLeft.lat -= step;
+                                topRight.lat -= step;
+                                bottomLeft.lat -= step;
+                                break;
+                            case 'e':
+                                topLeft.lng += step;
+                                topRight.lng += step;
+                                bottomLeft.lng += step;
+                                break;
+                            case 'w':
+                                topLeft.lng -= step;
+                                topRight.lng -= step;
+                                bottomLeft.lng -= step;
+                                break;
+                            case 'ne':
+                                topLeft.lat += step;
+                                topRight.lat += step;
+                                bottomLeft.lat += step;
+                                topLeft.lng += step;
+                                topRight.lng += step;
+                                bottomLeft.lng += step;
+                                break;
+                            case 'nw':
+                                topLeft.lat += step;
+                                topRight.lat += step;
+                                bottomLeft.lat += step;
+                                topLeft.lng -= step;
+                                topRight.lng -= step;
+                                bottomLeft.lng -= step;
+                                break;
+                            case 'se':
+                                topLeft.lat -= step;
+                                topRight.lat -= step;
+                                bottomLeft.lat -= step;
+                                topLeft.lng += step;
+                                topRight.lng += step;
+                                bottomLeft.lng += step;
+                                break;
+                            case 'sw':
+                                topLeft.lat -= step;
+                                topRight.lat -= step;
+                                bottomLeft.lat -= step;
+                                topLeft.lng -= step;
+                                topRight.lng -= step;
+                                bottomLeft.lng -= step;
+                                break;
+                        }
+
+                        updateOverlayCorners(topLeft, topRight, bottomLeft);
+                    }
+
+                    function resizeOverlay(type) {
+                        const step = 0.0002;
+                        let { topLeft, topRight, bottomLeft } = currentCorners;
+
+                        // Clone the LatLng objects
+                        topLeft = L.latLng(topLeft.lat, topLeft.lng);
+                        topRight = L.latLng(topRight.lat, topRight.lng);
+                        bottomLeft = L.latLng(bottomLeft.lat, bottomLeft.lng);
+
+                        switch (type) {
+                            case 'expand':
+                                // Expand all sides
+                                topLeft.lat += step;
+                                topLeft.lng -= step;
+                                topRight.lat += step;
+                                topRight.lng += step;
+                                bottomLeft.lat -= step;
+                                bottomLeft.lng -= step;
+                                break;
+                            case 'shrink':
+                                // Shrink all sides
+                                topLeft.lat -= step;
+                                topLeft.lng += step;
+                                topRight.lat -= step;
+                                topRight.lng -= step;
+                                bottomLeft.lat += step;
+                                bottomLeft.lng += step;
+                                break;
+                            case 'wider':
+                                // Expand horizontally
+                                topLeft.lng -= step;
+                                topRight.lng += step;
+                                bottomLeft.lng -= step;
+                                break;
+                            case 'narrower':
+                                // Shrink horizontally
+                                topLeft.lng += step;
+                                topRight.lng -= step;
+                                bottomLeft.lng += step;
+                                break;
+                            case 'taller':
+                                // Expand vertically
+                                topLeft.lat += step;
+                                topRight.lat += step;
+                                bottomLeft.lat -= step;
+                                break;
+                            case 'shorter':
+                                // Shrink vertically
+                                topLeft.lat -= step;
+                                topRight.lat -= step;
+                                bottomLeft.lat += step;
+                                break;
+                        }
+
+                        updateOverlayCorners(topLeft, topRight, bottomLeft);
+                    }
+
+                    function updateOpacity(value) {
+                        centerOverlay.setOpacity(value / 100);
+                        document.getElementById('opacityValue').textContent = value + '%';
+                    }
+
+                    function updateRotation(degrees) {
+                        currentRotation = parseInt(degrees);
+                        document.getElementById('rotationValue').textContent = degrees + '°';
+
+                        // Calculate rotation around center point
+                        const centerLat = (currentCorners.topLeft.lat + currentCorners.bottomLeft.lat) / 2;
+                        const centerLng = (currentCorners.topLeft.lng + currentCorners.topRight.lng) / 2;
+                        const center = L.latLng(centerLat, centerLng);
+
+                        // Get original corner positions relative to center
+                        const angle = (degrees * Math.PI) / 180;
+
+                        // Rotate each corner around the center
+                        const rotatePoint = (point, center, angle) => {
+                            const cos = Math.cos(angle);
+                            const sin = Math.sin(angle);
+                            const dx = point.lng - center.lng;
+                            const dy = point.lat - center.lat;
+                            return L.latLng(
+                                center.lat + (dy * cos - dx * sin),
+                                center.lng + (dx * cos + dy * sin)
+                            );
+                        };
+
+                        // Get base corners (unrotated)
+                        const baseTopLeft = L.latLng(39.1062, -77.8612);
+                        const baseTopRight = L.latLng(39.1062, -77.8578);
+                        const baseBottomLeft = L.latLng(39.1042, -77.8612);
+
+                        const newTopLeft = rotatePoint(baseTopLeft, center, angle);
+                        const newTopRight = rotatePoint(baseTopRight, center, angle);
+                        const newBottomLeft = rotatePoint(baseBottomLeft, center, angle);
+
+                        updateOverlayCorners(newTopLeft, newTopRight, newBottomLeft);
+                    }
+
+                    function tiltOverlay(direction) {
+                        const tiltStep = 0.0001;
+                        let { topLeft, topRight, bottomLeft } = currentCorners;
+
+                        // Clone the LatLng objects
+                        topLeft = L.latLng(topLeft.lat, topLeft.lng);
+                        topRight = L.latLng(topRight.lat, topRight.lng);
+                        bottomLeft = L.latLng(bottomLeft.lat, bottomLeft.lng);
+
+                        switch (direction) {
+                            case 'left':
+                                // Tilt left side down, right side up
+                                topLeft.lat -= tiltStep;
+                                bottomLeft.lat -= tiltStep;
+                                topRight.lat += tiltStep;
+                                break;
+                            case 'right':
+                                // Tilt right side down, left side up
+                                topLeft.lat += tiltStep;
+                                bottomLeft.lat += tiltStep;
+                                topRight.lat -= tiltStep;
+                                break;
+                            case 'reset':
+                                // Reset to default positions
+                                topLeft = L.latLng(39.1062, -77.8612);
+                                topRight = L.latLng(39.1062, -77.8578);
+                                bottomLeft = L.latLng(39.1042, -77.8612);
+                                currentRotation = 0;
+                                document.getElementById('rotationSlider').value = 0;
+                                document.getElementById('rotationValue').textContent = '0°';
+                                break;
+                        }
+
+                        updateOverlayCorners(topLeft, topRight, bottomLeft);
+                    }
+
+                    function copyBounds() {
+                        const { topLeft, topRight, bottomLeft } = currentCorners;
+                        const text = `// Rotated overlay corner coordinates
+const overlayTopLeft = L.latLng(${topLeft.lat.toFixed(6)}, ${topLeft.lng.toFixed(6)});
+const overlayTopRight = L.latLng(${topRight.lat.toFixed(6)}, ${topRight.lng.toFixed(6)});
+const overlayBottomLeft = L.latLng(${bottomLeft.lat.toFixed(6)}, ${bottomLeft.lng.toFixed(6)});
+const rotation = ${currentRotation}°;`;
+
+                        navigator.clipboard.writeText(text).then(() => {
+                            const btn = event.target;
+                            const originalText = btn.textContent;
+                            btn.textContent = '✅ Copied!';
+                            setTimeout(() => {
+                                btn.textContent = originalText;
+                            }, 2000);
+                        }).catch(err => {
+                            alert('Failed to copy: ' + err);
+                        });
+                    }
+
+                    function resetOverlay() {
+                        const defaultTopLeft = L.latLng(39.1062, -77.8612);
+                        const defaultTopRight = L.latLng(39.1062, -77.8578);
+                        const defaultBottomLeft = L.latLng(39.1042, -77.8612);
+                        currentRotation = 0;
+                        document.getElementById('rotationSlider').value = 0;
+                        document.getElementById('rotationValue').textContent = '0°';
+                        document.getElementById('opacitySlider').value = 75;
+                        document.getElementById('opacityValue').textContent = '75%';
+                        centerOverlay.setOpacity(0.75);
+                        updateOverlayCorners(defaultTopLeft, defaultTopRight, defaultBottomLeft);
+                    }
+
+                    // User location tracking
+                    let userMarker = null;
+                    let watchId = null;
+                    let isTracking = false;
+
+                    function updateGPSStatus(status, isActive, isError) {
+                        const dot = document.getElementById('gpsDot');
+                        const text = document.getElementById('gpsText');
+
+                        dot.className = 'gps-dot' + (isActive ? ' active' : '') + (isError ? ' error' : '');
+                        text.textContent = status;
+                    }
+
+                    function createUserMarker(latlng) {
+                        const markerHtml = `
                 <div class="user-marker-pulse"></div>
                 <div class="user-marker" style="width: 16px; height: 16px; position: relative;"></div>
             `;
 
-                const icon = L.divIcon({
-                    className: '',
-                    html: markerHtml,
-                    iconSize: [16, 16],
-                    iconAnchor: [8, 8]
-                });
+                        const icon = L.divIcon({
+                            className: '',
+                            html: markerHtml,
+                            iconSize: [16, 16],
+                            iconAnchor: [8, 8]
+                        });
 
-                return L.marker(latlng, { icon: icon });
-            }
-
-            function toggleTracking() {
-                const btn = document.getElementById('locateBtn');
-                const btnText = document.getElementById('locateBtnText');
-
-                if (isTracking) {
-                    // Stop tracking
-                    if (watchId !== null) {
-                        navigator.geolocation.clearWatch(watchId);
-                        watchId = null;
-                    }
-                    isTracking = false;
-                    btn.classList.remove('tracking');
-                    btn.classList.add('primary');
-                    btnText.textContent = 'Find Me';
-                    updateGPSStatus('GPS Off', false, false);
-                } else {
-                    // Start tracking
-                    if (!navigator.geolocation) {
-                        alert('GPS is not supported by your browser.');
-                        return;
+                        return L.marker(latlng, { icon: icon });
                     }
 
-                    updateGPSStatus('Locating...', false, false);
+                    function toggleDebugMode() {
+                        const panel = document.getElementById('debugPanel');
+                        if (panel.style.display === 'none' || !panel.style.display) {
+                            panel.style.display = 'block';
+                        } else {
+                            panel.style.display = 'none';
+                        }
+                    }
 
-                    watchId = navigator.geolocation.watchPosition(
-                        (position) => {
-                            const lat = position.coords.latitude;
-                            const lng = position.coords.longitude;
-                            const accuracy = Math.round(position.coords.accuracy);
+                    function toggleTracking() {
+                        const btn = document.getElementById('locateBtn');
+                        const btnText = document.getElementById('locateBtnText');
 
-                            if (userMarker) {
-                                userMarker.setLatLng([lat, lng]);
-                            } else {
-                                userMarker = createUserMarker([lat, lng]).addTo(map);
+                        if (isTracking) {
+                            // Stop tracking
+                            if (watchId !== null) {
+                                navigator.geolocation.clearWatch(watchId);
+                                watchId = null;
                             }
-
-                            if (!isTracking) {
-                                map.setView([lat, lng], 17);
-                            }
-
-                            isTracking = true;
-                            btn.classList.remove('primary');
-                            btn.classList.add('tracking');
-                            btnText.textContent = 'Tracking';
-                            updateGPSStatus(`±${accuracy}m`, true, false);
-                        },
-                        (error) => {
-                            let msg = 'GPS Error';
-                            if (error.code === 1) msg = 'GPS Denied';
-                            if (error.code === 2) msg = 'GPS Unavailable';
-                            if (error.code === 3) msg = 'GPS Timeout';
-
-                            updateGPSStatus(msg, false, true);
                             isTracking = false;
+
+                            // NEW: Remove marker from map
+                            if (userMarker) {
+                                userMarker.remove();
+                                userMarker = null;
+                            }
+
                             btn.classList.remove('tracking');
                             btn.classList.add('primary');
                             btnText.textContent = 'Find Me';
-                        },
-                        {
-                            enableHighAccuracy: true,
-                            timeout: 15000,
-                            maximumAge: 0
+                            updateGPSStatus('GPS Off', false, false);
+                        } else {
+                            // Start tracking
+                            if (!navigator.geolocation) {
+                                alert('GPS is not supported by your browser.');
+                                return;
+                            }
+
+                            updateGPSStatus('Locating...', false, false);
+
+                            watchId = navigator.geolocation.watchPosition(
+                                (position) => {
+                                    const lat = position.coords.latitude;
+                                    const lng = position.coords.longitude;
+                                    const accuracy = Math.round(position.coords.accuracy);
+
+                                    if (userMarker) {
+                                        userMarker.setLatLng([lat, lng]);
+                                    } else {
+                                        userMarker = createUserMarker([lat, lng]).addTo(map);
+                                    }
+
+                                    if (!isTracking) {
+                                        map.setView([lat, lng], 17);
+                                    }
+
+                                    isTracking = true;
+                                    btn.classList.remove('primary');
+                                    btn.classList.add('tracking');
+                                    btnText.textContent = 'Tracking';
+                                    updateGPSStatus(`±${accuracy}m`, true, false);
+                                },
+                                (error) => {
+                                    let msg = 'GPS Error';
+                                    if (error.code === 1) msg = 'GPS Denied';
+                                    if (error.code === 2) msg = 'GPS Unavailable';
+                                    if (error.code === 3) msg = 'GPS Timeout';
+
+                                    updateGPSStatus(msg, false, true);
+                                    isTracking = false;
+
+                                    // Remove marker on error too
+                                    if (userMarker) {
+                                        userMarker.remove();
+                                        userMarker = null;
+                                    }
+
+                                    btn.classList.remove('tracking');
+                                    btn.classList.add('primary');
+                                    btnText.textContent = 'Find Me';
+                                },
+                                {
+                                    enableHighAccuracy: true,
+                                    timeout: 15000,
+                                    maximumAge: 0
+                                }
+                            );
                         }
-                    );
+                    }
+
+                    function centerOnTrail() {
+                        map.fitBounds(magisTrail.getBounds(), {
+                            padding: [20, 20]
+                        });
+                    }
+
+                    function showHelp() {
+                        document.getElementById('helpModal').classList.add('active');
+                    }
+
+                    function closeHelp() {
+                        document.getElementById('helpModal').classList.remove('active');
+                    }
+
+                    // Close modal on overlay click
+                    document.getElementById('helpModal').addEventListener('click', (e) => {
+                        if (e.target.classList.contains('modal-overlay')) {
+                            closeHelp();
+                        }
+                    });
+
+                    // Offline detection
+                    function updateOnlineStatus() {
+                        const banner = document.getElementById('offlineBanner');
+                        if (!navigator.onLine) {
+                            banner.classList.add('visible');
+                        } else {
+                            banner.classList.remove('visible');
+                        }
+                    }
+
+                    window.addEventListener('online', updateOnlineStatus);
+                    window.addEventListener('offline', updateOnlineStatus);
+                    updateOnlineStatus();
+
+                    // Service worker registration
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.register('/CCC.TRAILMAP/service-worker.js')
+                            .then(reg => console.log('Service Worker registered'))
+                            .catch(err => console.log('Service Worker registration failed:', err));
+                    }
+
+                    // Fit map to trail on load
+                    setTimeout(() => {
+                        centerOnTrail();
+                        // Ensure trails are on top
+                        if (magisTrail) {
+                            magisTrail.bringToFront();
+                        }
+                        if (typeof cornerstoneTrail !== 'undefined') {
+                            cornerstoneTrail.bringToFront();
+                        }
+                        // Auto-start GPS tracking - DISABLED per user request
+                        // toggleTracking();
+                    }, 500);
+
+                    // Expose functions to global scope for HTML onclick handlers
+                    window.centerOnTrail = centerOnTrail;
+                    window.toggleTracking = toggleTracking;
+                    window.toggleDebugMode = toggleDebugMode;
                 }
-            }
 
-            function centerOnTrail() {
-                map.fitBounds(magisTrail.getBounds(), {
-                    padding: [60, 60]
-                });
-            }
-
-            function showHelp() {
-                document.getElementById('helpModal').classList.add('active');
-            }
-
-            function closeHelp() {
-                document.getElementById('helpModal').classList.remove('active');
-            }
-
-            // Close modal on overlay click
-            document.getElementById('helpModal').addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal-overlay')) {
-                    closeHelp();
-                }
-            });
-
-            // Offline detection
-            function updateOnlineStatus() {
-                const banner = document.getElementById('offlineBanner');
-                if (!navigator.onLine) {
-                    banner.classList.add('visible');
-                } else {
-                    banner.classList.remove('visible');
-                }
-            }
-
-            window.addEventListener('online', updateOnlineStatus);
-            window.addEventListener('offline', updateOnlineStatus);
-            updateOnlineStatus();
-
-            // Service worker registration
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(reg => console.log('Service Worker registered'))
-                    .catch(err => console.log('Service Worker registration failed:', err));
-            }
-
-            // Fit map to trail on load
-            setTimeout(() => {
-                centerOnTrail();
-                // Auto-start GPS tracking
-                toggleTracking();
-            }, 500);
-        }
-
-        // Start initialization
-        initMap();
-    </script>
+                // Start initialization
+                initMap();
+            </script>
 </body>
 
 </html>

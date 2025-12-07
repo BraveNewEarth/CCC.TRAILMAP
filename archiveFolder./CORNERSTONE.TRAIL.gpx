@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<gpx version="1.1" creator="Organic Maps" xmlns="http://www.topografix.com/GPX/1/1"
+    xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3"
+    xmlns:gpx_style="http://www.topografix.com/GPX/gpx_style/0/2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.topografix.com/GPX/1/1 https://www.topografix.com/GPX/1/1/gpx.xsd http://www.topografix.com/GPX/gpx_style/0/2 https://www.topografix.com/GPX/gpx_style/0/2/gpx_style.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 https://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd">
+<metadata>
+  <name>CORNERSTONE.TRAIL</name>
+</metadata>
+<trk>
+  <name>CORNERSTONE.TRAIL</name>
+  <extensions>
+    <gpxx:TrackExtension><gpxx:DisplayColor>Blue</gpxx:DisplayColor></gpxx:TrackExtension>
+    <gpx_style:line><gpx_style:color>0060FD</gpx_style:color></gpx_style:line>
+    <xsi:gpx><color>#FF0060FD</color></xsi:gpx>
+  </extensions>
+  <trkseg>
+    <trkpt lat="39.105748" lon="-77.859805">
+      <ele>431</ele>
+      <time>2025-11-30T19:47:35Z</time>
+    </trkpt>
+    <trkpt lat="39.105803" lon="-77.859686">
+      <ele>433</ele>
+      <time>2025-11-30T19:47:46Z</time>
+    </trkpt>
+    <trkpt lat="39.105713" lon="-77.859577">
+      <ele>437</ele>
+      <time>2025-11-30T19:47:58Z</time>
+    </trkpt>
+    <trkpt lat="39.105713" lon="-77.859531">
+      <ele>437</ele>
+      <time>2025-11-30T19:48:02Z</time>
+    </trkpt>
+  </trkseg>
+</trk>
+</gpx>

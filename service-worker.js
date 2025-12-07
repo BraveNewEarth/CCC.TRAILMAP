@@ -1,14 +1,19 @@
-const CACHE_NAME = 'calcagnini-trails-v1';
-const TILE_CACHE_NAME = 'calcagnini-tiles-v1';  // Separate cache for tiles (never deleted)
+const CACHE_NAME = 'calcagnini-trails-v2';
+const TILE_CACHE_NAME = 'calcagnini-tiles-v2';  // Separate cache for tiles (never deleted)
 
 // Core app files to cache immediately
 const CORE_FILES = [
-    '/',
-    '/index.html',
-    '/manifest.json',
+    './',
+    './index.html',
+    './manifest.json',
+    './obverlay.png',
+    './header-icon.jpg',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+    'https://unpkg.com/leaflet-imageoverlay-rotated@0.2.1/Leaflet.ImageOverlay.Rotated.js',
+    'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&display=swap'
 ];
+
 
 // Install event - cache core files
 self.addEventListener('install', event => {
